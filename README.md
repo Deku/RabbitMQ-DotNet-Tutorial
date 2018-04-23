@@ -6,7 +6,7 @@ Ejercicios mostrados en los (tutoriales de RabbitMQ)[https://www.rabbitmq.com/ge
 
 Para ejecutar los ejemplos necesitarás tener instalado .Net SDK, con la versión de .Net Core 2.0. Ver instalación para (Windows)[https://www.microsoft.com/net/learn/get-started/windows] / (Linux)[https://www.microsoft.com/net/learn/get-started/linux/rhel] / (MacOS)[https://www.microsoft.com/net/learn/get-started/macos].
 
-También necesitarás un servidor que corra el servicio de RabbitMQ, ya sea de (forma local)[https://www.rabbitmq.com/download.html] o en la nube con (CloudAMPQ)[https://www.cloudamqp.com/].
+También necesitarás un servidor que corra el servicio de RabbitMQ, ya sea de (forma local)[https://www.rabbitmq.com/download.html] o en la nube con (CloudAMQP)[https://www.cloudamqp.com/].
 
 1. Cambia la extensión del archivo `rabbitmq.config.json.dist` a `rabbitmq.config.json`.
 2. Configura la conexión a tu servidor en el archivo `rabbitmq.config.json`, esta será compartida en todos los proyectos dentro de este repositorio. El archivo `RabbitMQConfig.cs` es una clase que nos servirá como contrato para poder cargar la configuración dentro del código.
