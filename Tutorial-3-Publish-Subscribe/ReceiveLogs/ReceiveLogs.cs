@@ -54,6 +54,7 @@ namespace Tutoriales_RabbitMQ.Tutorial_3.ReceiveLogs
                         // Iniciamos la escucha
                         channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
 
+                        Console.WriteLine("Utilizando cola {0}", queueName);
                         Console.WriteLine("Escuchando mensajes desde RabbitMQ. Presiona [Enter] para finalizar.");
                         Console.ReadLine();
                     }
