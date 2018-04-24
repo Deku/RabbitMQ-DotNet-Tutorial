@@ -4,7 +4,7 @@ Ejercicios mostrados en los [tutoriales de RabbitMQ](https://www.rabbitmq.com/ge
 
 # Instrucciones
 
-Para ejecutar los ejemplos necesitarás tener instalado .Net SDK, con la versión de .Net Core 2.0. Ver instalación para [Windows](https://www.microsoft.com/net/learn/get-started/windows) / [Linux](https://www.microsoft.com/net/learn/get-started/linux/rhel) / (MacOS)(https://www.microsoft.com/net/learn/get-started/macos).
+Para ejecutar los ejemplos necesitarás tener instalado .Net SDK, con la versión de .Net Core 2.0. Ver instalación para [Windows](https://www.microsoft.com/net/learn/get-started/windows) / [Linux](https://www.microsoft.com/net/learn/get-started/linux/rhel) / [MacOS](https://www.microsoft.com/net/learn/get-started/macos).
 
 También necesitarás un servidor que corra el servicio de RabbitMQ, ya sea de [forma local](https://www.rabbitmq.com/download.html) o en la nube con [CloudAMQP](https://www.cloudamqp.com/).
 
