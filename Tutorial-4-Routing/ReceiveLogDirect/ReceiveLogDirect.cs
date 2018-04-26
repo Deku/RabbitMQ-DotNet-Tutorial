@@ -7,15 +7,25 @@ using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Tutoriales_RabbitMQ.Tutorial_3.ReceiveLogs
+namespace Tutoriales_RabbitMQ.Tutorial_4.ReceiveLogDirect
 {
     /// <summary>
-    /// Recibe el broadcast desde el exchange y lo muestra en pantalla.
+    /// Suscribe a uno o más niveles de log (colas) y los imprime en pantalla.
+    /// Ejemplo: dotnet run info warning error
     /// </summary>
-    class ReceiveLogs
+    class ReceiveLogDirect
     {
         static void Main(string[] args)
         {
+            if (args.Length < 1)
+            {
+                Console.Error.WriteLine("Usage: dotnet run [info] [warning] [error]");
+                Console.WriteLine("Presione [Enter] para finalizar.");
+                Console.ReadLine();
+                Environment.ExitCode = 1;
+                return;
+            }
+
             RabbitMQConfig config;
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\rabbitmq.config.json";
             
@@ -37,19 +47,24 @@ namespace Tutoriales_RabbitMQ.Tutorial_3.ReceiveLogs
                     using (var channel = connection.CreateModel())
                     {
                         // Declaramos el exchange en caso de que no exista
-                        channel.ExchangeDeclare(exchange: "logs", type: "fanout");
+                        channel.ExchangeDeclare(exchange: "direct_log", type: "direct");
+
+                         // Declaramos una cola autogenerada y la enlazamos al exchange
+                         // mediante las binding keys
+                        var queueName = channel.QueueDeclare().QueueName;
+
+                        foreach (var severity in args)
+                        {
+                            channel.QueueBind(queue: queueName, exchange: "direct_log", routingKey: severity);
+                        }
 
                         // Creamos el consumidor
                         var consumer = new EventingBasicConsumer(channel);
                         consumer.Received += (model, ea) => {
                             var body = ea.Body;
                             var message = Encoding.UTF8.GetString(body);
-                            Console.WriteLine("==> Recibido  {0}", message);
+                            Console.WriteLine("==> Recibido  {0}: {1}", ea.RoutingKey, message);
                         };
-
-                        // Declaramos una cola autogenerada y la enlazamos al exchange
-                        var queueName = channel.QueueDeclare().QueueName;
-                        channel.QueueBind(queue: queueName, exchange: "logs", routingKey: "");
 
                         // Iniciamos la escucha
                         channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);

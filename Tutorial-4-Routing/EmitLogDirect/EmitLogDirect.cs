@@ -2,17 +2,18 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Linq;
 
 using Newtonsoft.Json;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
-namespace Tutoriales_RabbitMQ.Tutorial_3.ReceiveLogs
+namespace Tutoriales_RabbitMQ.Tutorial_4.EmitLogDirect
 {
     /// <summary>
-    /// Recibe el broadcast desde el exchange y lo muestra en pantalla.
+    /// Envía un mensaje al exchange indicando como filtro (cola) la severidad indicada
+    /// Ejemplo: dotnet run error "Este es un mensaje de error"
     /// </summary>
-    class ReceiveLogs
+    class EmitLogDirect
     {
         static void Main(string[] args)
         {
@@ -30,38 +31,36 @@ namespace Tutoriales_RabbitMQ.Tutorial_3.ReceiveLogs
                                                     UserName = config.Username, 
                                                     VirtualHost = config.VHost, 
                                                     Password = config.Password };
+
             try
             {
                 using (var connection = factory.CreateConnection())
                 {
                     using (var channel = connection.CreateModel())
                     {
-                        // Declaramos el exchange en caso de que no exista
-                        channel.ExchangeDeclare(exchange: "logs", type: "fanout");
+                        // Declaramos el exchange por si no existe
+                        channel.ExchangeDeclare("direct_log", "direct");
 
-                        // Creamos el consumidor
-                        var consumer = new EventingBasicConsumer(channel);
-                        consumer.Received += (model, ea) => {
-                            var body = ea.Body;
-                            var message = Encoding.UTF8.GetString(body);
-                            Console.WriteLine("==> Recibido  {0}", message);
-                        };
+                        // Obtenemos la severidad (binding key)
+                        var severity = (args.Length > 0) ? args[0] : "info";
 
-                        // Declaramos una cola autogenerada y la enlazamos al exchange
-                        var queueName = channel.QueueDeclare().QueueName;
-                        channel.QueueBind(queue: queueName, exchange: "logs", routingKey: "");
-
-                        // Iniciamos la escucha
-                        channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
-
-                        Console.WriteLine("Utilizando cola {0}", queueName);
-                        Console.WriteLine("Escuchando mensajes desde RabbitMQ. Presiona [Enter] para finalizar.");
-                        Console.ReadLine();
+                        var message = GetMessage(args);
+                        var body = Encoding.UTF8.GetBytes(message);
+                        channel.BasicPublish(exchange: "direct_log",
+                                            routingKey: severity,
+                                            basicProperties: null,
+                                            body: body);
+                        Console.WriteLine("<== Enviado  {0}", message);
                     }
                 }
             } catch (RabbitMQ.Client.Exceptions.BrokerUnreachableException) {
                 Console.WriteLine("# Error: No pudo establecerse una conexión con el servidor RabbitMQ. Finalizando la aplicación.");
             }
+        }
+
+        public static string GetMessage(string[] args)
+        {
+            return (args.Length > 1) ? string.Join(" ", args.Skip(1).ToArray()) : "Hello world!";
         }
     }
 }
